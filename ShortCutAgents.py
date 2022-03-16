@@ -50,6 +50,9 @@ class SARSAAgent(object):
         return a
 
     def e_greedy(self, actions):
+        '''This function is not needed at all, as select_action is
+           e-greedy but I was too tired to think about how to
+           implement that in the update here with indexes :`)'''
         if (0.001 * r.randint(1, 1000) <= 1 - self.epsilon):          # generate random number between 0.00 and 1.00.
             a = max(actions)                                          # if random number is bigger than 1-epsilon, return the index of the highest mean
         else:
