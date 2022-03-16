@@ -13,13 +13,13 @@ class QLearningAgent(object):
         pass
         
     def select_action(self, state):
-        if (0.001 * r.randint(1, 1000) <= 1 - self.epsilon):            # generate random number between 0.00 and 1.00.
-            a = self.Q[state].index(max(self.Q[state]))                 # if random number is bigger than 1-epsilon, return the index of the highest mean
+        if (0.001 * r.randint(1, 1000) <= 1 - self.epsilon):                # generate random number between 0.00 and 1.00.
+            a = self.Q[state].index(max(self.Q[state]))                     # if random number is bigger than 1-epsilon, return the index of the highest mean
         else:
-            copy = self.Q[state].copy()                                 # create a copy of Q so  the value is not deleted from the actual list
-            copy.remove(max(self.Q[state]))                             # delete the highest value from the list
-            random_action = r.choice(copy)                              # choose a random action from the remaining actions
-            a = self.Q[state].index(random_action)                      # return the index of chosen action
+            copy = self.Q[state].copy()                                     # create a copy of Q so  the value is not deleted from the actual list
+            copy.remove(max(self.Q[state]))                                 # delete the highest value from the list
+            random_action = r.choice(copy)                                  # choose a random action from the remaining actions
+            a = self.Q[state].index(random_action)                          # return the index of chosen action
         return a
         
     def update(self, state, action, reward):
