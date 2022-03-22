@@ -1,7 +1,7 @@
 from multiprocessing.sharedctypes import Value
 import numpy as np
 from tqdm import tqdm
-from ShortCutEnvironment import Environment
+from ShortCutEnvironment import ShortcutEnvironment
 from ShortCutAgents import QLearningAgent, SARSAAgent, ExpectedSARSAAgent
 from Helper import LearningCurvePlot, ComparisonPlot, smooth
 from tqdm import tqdm
@@ -35,8 +35,8 @@ def experiment(n_episodes, n_repetitions, experiment_type, alpha):
     if experiment_type == 1:
         print('Starting with alpha = {alpha}'.format(alpha=alpha))
         for i in tqdm(range(n_repetitions)):
-            q_learning = QLearningAgent(alpha=alpha)                        # initialise the policy with alpha
-            env = Environment()                                             # initialise the environment
+            env = ShortcutEnvironment()  
+            q_learning = QLearningAgent(n_actions=env.action_size(), n_states=env.state_size(), epsilon=epsilon, alpha=alpha, gamma=gamma)                        # initialise the policy with alpha                                           # initialise the environment
             for _ in range(n_episodes):
                 env.reset()                                                 # start with a clean environment
                 j = 0                                                       #counter for average reward
@@ -85,6 +85,7 @@ if __name__ == '__main__':
     n_timesteps         = 1000
     smoothing_window    = 31
     epsilon             = 0.1
+    gamma               = 0.1 #no idea what this needs to be by default
 
     alpha_list = [0.1, 0.5, 1.0, 2.0]        # Values that are used in the comparison experiment
     
