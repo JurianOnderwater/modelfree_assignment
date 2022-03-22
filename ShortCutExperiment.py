@@ -3,19 +3,38 @@ from tqdm import tqdm
 from ShortCutEnvironment import Environment
 from ShortCutAgents import QLearningAgent, SARSAAgent, ExpectedSARSAAgent
 from Helper import LearningCurvePlot, ComparisonPlot, smooth
+from tqdm import tqdm
 
 
-def experiment(n_episodes, n_repetitions, smoothing_window, experiment_type):
+def RLplot(func):
+    def wrapper(*args, **kwargs):
+        plot = LearningCurvePlot(title='{title} Experiment'.format(title=experiment_name_dict[experiment_type]))
+        curve = func(n_episodes, n_repetitions, experiment_type)
+        smoothed_curve = smooth(curve, smoothing_window)
+        plot.add_curve(smoothed_curve, label=None)
+        plot.save(name='{title} Experiment'.format(title=experiment_name_dict[experiment_type]))
+    return wrapper
+
+
+def experiment(n_episodes, n_repetitions, experiment_type):
+    averaged_curve = [float(0) for _ in range()]
     if experiment_type == 1:
-        for _ in range(n_repetitions):
+        for i in range(n_repetitions):
             q_learning = QLearningAgent()                                    # initialise the policy
             env = Environment()                                              # initialise the environment
             for _ in range(n_episodes):
                 env.reset()                                                 # start with a clean environment
+                j = 0                                                       #counter for average reward
                 while not env.done():                                       # continue till you reach terminal state
                     sample_action = q_learning.select_action(env.state())
                     sample_reward = env.step(sample_action)
                     q_learning.update(state=env.state(), action=sample_action, reward=sample_reward)
+                    try:
+                        averaged_curve[j] += (1 / i) * (sample_reward - averaged_curve[j]) #(average learning-curve/reward over n_repetitions) #dont know yet how to do this
+                    except ZeroDivisionError:
+                        averaged_curve[j] += sample_reward
+                    j += 1 
+    return averaged_curve
                     # env.step() # I'm think this is not necessary because .step has the updating of the state as a side effect
 
     if experiment_type == 2:
