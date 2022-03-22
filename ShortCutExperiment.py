@@ -34,7 +34,7 @@ def experiment(n_episodes, n_repetitions, experiment_type):
                     except ZeroDivisionError:
                         averaged_curve[j] += sample_reward
                     j += 1 
-    return averaged_curve
+        return averaged_curve
                     # env.step() # I'm think this is not necessary because .step has the updating of the state as a side effect
 
     if experiment_type == 2:
