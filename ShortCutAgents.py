@@ -30,12 +30,14 @@ class QLearningAgent(object):
 
 class SARSAAgent(object):
 
-    def __init__(self, n_actions, n_states, epsilon):
-        # self.n_actions = n_actions
-        # self.n_states = n_states
-        self.epsilon = epsilon
+    def __init__(self, n_actions, n_states, epsilon, alpha, gamma):
+        # self.n_actions  = n_actions
+        # self.n_states   = n_states                                          
+        self.alpha      = alpha                                             # learning rate
+        self.gamma      = gamma                                             # discount factor
+        self.epsilon    = epsilon                                           # chance of exploration                                         
         self.Q = [[0 for _ in range(n_actions)] for _ in range(n_states)]   # mean rewards
-        self.n = [0 for _ in range(n_actions)]                              # number of times an action has been taken
+        # self.n = [0 for _ in range(n_actions)]                              # number of times an action has been taken
         pass
         
     def select_action(self, state):
@@ -50,7 +52,7 @@ class SARSAAgent(object):
         return a
         
     def update(self, current_state, new_state, action, reward):
-        target = reward + (self.gamma * max(self.Q[new_state][self.select_action(new_state)]))                       # find the next state after action is taken
+        target = reward + (self.gamma * self.Q[new_state][self.select_action(new_state)])                       # find the next state after action is taken
         # self.n[action] += 1
         self.Q[current_state][action] += (self.alpha *  (target - self.Q[current_state][action]))  # update the means according to Q-learning rule
         pass

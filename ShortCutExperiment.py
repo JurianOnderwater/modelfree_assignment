@@ -94,7 +94,7 @@ def experiment(n_episodes, n_repetitions, experiment_type, alpha):
 
 if __name__ == '__main__':
     # experiment settings
-    n_repetitions       = 10
+    n_repetitions       = 100
     n_episodes          = 1000
     # n_timesteps         = 1000
     smoothing_window    = 31
