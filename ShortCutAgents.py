@@ -23,7 +23,7 @@ class QLearningAgent(object):
         return a
         
     def update(self, current_state, new_state, action, reward):
-        target = reward + (self.gamma * self.Q[new_state][self.select_action(new_state)])                       # find the next state after action is taken
+        target = reward + (self.gamma * max(self.Q[new_state]))                       # find the next state after action is taken
         # self.n[action] += 1
         self.Q[current_state][action] += (self.alpha *  (target - self.Q[current_state][action]))  # update the means according to Q-learning rule
         pass
@@ -48,24 +48,11 @@ class SARSAAgent(object):
             random_action = r.choice(copy)                                  # choose a random action from the remaining actions
             a = self.Q[state].index(random_action)                          # return the index of chosen action
         return a
-
-    def e_greedy(self, actions):
-        '''This function is not needed at all, as select_action is
-           e-greedy but I was too tired to think about how to
-           implement that in the update here with indexes :`)'''
-        if (0.001 * r.randint(1, 1000) <= 1 - self.epsilon):          # generate random number between 0.00 and 1.00.
-            a = max(actions)                                          # if random number is bigger than 1-epsilon, return the index of the highest mean
-        else:
-            copy = actions.copy()                                     # create a copy of Q so  the value is not deleted from the actual list
-            copy.remove(max(actions))                                 # delete the highest value from the list
-            random_action = r.choice(copy)                            # choose a random action from the remaining actions
-            a = actions[random_action]                                # return the index of chosen action
-        return a
         
-    def update(self, state, action, reward):
-        target = self.gamma * self.e_greedy(self.Q[self.select_action(state)])              # find the next state after action is taken
-        self.n[action] += 1
-        self.Q[state][action] += (self.alpha *  (reward + target - self.Q[state][action]))  # update the means according to Q-learning rule
+    def update(self, current_state, new_state, action, reward):
+        target = reward + (self.gamma * max(self.Q[new_state][self.select_action(new_state)]))                       # find the next state after action is taken
+        # self.n[action] += 1
+        self.Q[current_state][action] += (self.alpha *  (target - self.Q[current_state][action]))  # update the means according to Q-learning rule
         pass
 
 class ExpectedSARSAAgent(object):
