@@ -12,10 +12,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
 
-def cumulative_reward(reward, gamma, timestep):
-    '''Returns the cumulative reward for a gamma and timestep'''
-    return (reward * pow(gamma, timestep))
-
 class LearningCurvePlot:
 
     def __init__(self,title=None):
@@ -62,6 +58,20 @@ class ComparisonPlot:
         ''' name: string for filename of saved figure '''
         self.ax.legend()
         self.fig.savefig(name,dpi=300)
+
+def cumulative_reward(reward, gamma, timestep):
+    '''Returns the cumulative reward for a gamma and timestep'''
+    return (reward * pow(gamma, timestep))
+
+def make_averaged_curve(averaged_curve: list, value: float, iterator: int, location: int):
+    '''averaged_curve: list containing the values of hte curve
+       value: the value that will be added to the running average of averaged_curve[location]
+       iterator: iterator over which is averaged
+       location: iterator which is used for the index in averaged_curve'''
+    try:
+        averaged_curve[location] += (1 / iterator) * (value - averaged_curve[location])   #(average learning-curve/reward over n_repetitions) #dont know yet how to do this
+    except ZeroDivisionError:
+        averaged_curve[j] += c_reward
 
 def smooth(y, window, poly=1):
     '''

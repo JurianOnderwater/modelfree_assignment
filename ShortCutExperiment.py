@@ -3,7 +3,7 @@ import numpy as np
 from tqdm import tqdm
 from ShortCutEnvironment import ShortcutEnvironment
 from ShortCutAgents import QLearningAgent, SARSAAgent, ExpectedSARSAAgent
-from Helper import LearningCurvePlot, ComparisonPlot, smooth, cumulative_reward
+from Helper import LearningCurvePlot, ComparisonPlot, smooth, cumulative_reward, make_averaged_curve
 from tqdm import tqdm
 
 
@@ -49,10 +49,7 @@ def experiment(n_episodes, n_repetitions, experiment_type, alpha):
                     q_learning.update(current_state=current_state, new_state=env.state(), action=sample_action, reward=sample_reward)
                     c_reward += cumulative_reward(sample_reward, gamma, timestep)
                     timestep += 1 
-                try:
-                    averaged_curve[j] += (1 / i) * (c_reward - averaged_curve[j])   #(average learning-curve/reward over n_repetitions) #dont know yet how to do this
-                except ZeroDivisionError:
-                    averaged_curve[j] += c_reward
+                make_averaged_curve(averaged_curve, c_reward, i, j)
                 
         return averaged_curve
 
@@ -72,10 +69,7 @@ def experiment(n_episodes, n_repetitions, experiment_type, alpha):
                     sarsa.update(current_state=current_state, new_state=env.state(), action=sample_action, reward=sample_reward)
                     c_reward += cumulative_reward(sample_reward, gamma, timestep)
                     timestep += 1 
-                try:
-                    averaged_curve[j] += (1 / i) * (c_reward - averaged_curve[j])   #(average learning-curve/reward over n_repetitions) #dont know yet how to do this
-                except ZeroDivisionError:
-                    averaged_curve[j] += c_reward
+                make_averaged_curve(averaged_curve, c_reward, i, j)
         return averaged_curve
 
     if experiment_type == 3:
@@ -94,7 +88,7 @@ def experiment(n_episodes, n_repetitions, experiment_type, alpha):
 
 if __name__ == '__main__':
     # experiment settings
-    n_repetitions       = 100
+    n_repetitions       = 10
     n_episodes          = 1000
     # n_timesteps         = 1000
     smoothing_window    = 31
