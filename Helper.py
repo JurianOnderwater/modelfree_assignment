@@ -59,15 +59,29 @@ class ComparisonPlot:
         self.ax.legend()
         self.fig.savefig(name,dpi=300)
 
-def cumulative_reward(reward, gamma, timestep):
-    '''Returns the cumulative reward for a gamma and timestep'''
+def cumulative_reward(reward: float, gamma: float, timestep: int)->float:
+    '''
+    Returns the cumulative reward for a gamma and timestep.
+
+    Parameters
+    ----------
+    reward: reward to add to cumulative reward
+    gamma: discount factor
+    timestep: exponent to apply to gamma
+    
+    Returns
+    ----------
+    Amount to add to cumulative reward'''
     return (reward * pow(gamma, timestep))
 
-def make_averaged_curve(averaged_curve: list, value: float, iterator: int, location: int):
-    '''averaged_curve: list containing the values of hte curve
-       value: the value that will be added to the running average of averaged_curve[location]
-       iterator: iterator over which is averaged
-       location: iterator which is used for the index in averaged_curve'''
+def make_averaged_curve(averaged_curve: list, value: float, iterator: int, location: int)->None:
+    '''
+    Parameters
+    ----------
+    averaged_curve: list containing the values of hte curve
+    value: the value that will be added to the running average of averaged_curve[location]
+    iterator: iterator over which is averaged
+    location: iterator which is used for the index in averaged_curve'''
     try:
         averaged_curve[location] += (1 / iterator) * (value - averaged_curve[location])   #(average learning-curve/reward over n_repetitions) #dont know yet how to do this
     except ZeroDivisionError:
