@@ -71,7 +71,7 @@ def make_averaged_curve(averaged_curve: list, value: float, iterator: int, locat
     try:
         averaged_curve[location] += (1 / iterator) * (value - averaged_curve[location])   #(average learning-curve/reward over n_repetitions) #dont know yet how to do this
     except ZeroDivisionError:
-        averaged_curve[j] += c_reward
+        averaged_curve[location] += value
 
 def smooth(y, window, poly=1):
     '''
