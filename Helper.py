@@ -12,13 +12,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
 
+def cumulative_reward(reward, gamma, timestep):
+    '''Returns the cumulative reward for a gamma and timestep'''
+    return (reward * pow(gamma, timestep))
+
 class LearningCurvePlot:
 
     def __init__(self,title=None):
         self.fig,self.ax = plt.subplots()
         self.ax.set_xlabel('Time')
         self.ax.set_ylabel('Reward')      
-        self.ax.set_ylim([0,1.0])
+        # self.ax.set_ylim([0,1.0])
         if title is not None:
             self.ax.set_title(title)
         

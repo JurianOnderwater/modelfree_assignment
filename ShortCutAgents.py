@@ -9,7 +9,7 @@ class QLearningAgent(object):
         self.gamma      = gamma                                             # discount factor
         self.epsilon    = epsilon                                           # chance of exploration                                         
         self.Q = [[0 for _ in range(n_actions)] for _ in range(n_states)]   # mean rewards
-        self.n = [0 for _ in range(n_actions)]                              # number of times an action has been taken
+        # self.n = [0 for _ in range(n_actions)]                              # number of times an action has been taken
         pass
         
     def select_action(self, state):
@@ -22,10 +22,10 @@ class QLearningAgent(object):
             a = self.Q[state].index(random_action)                          # return the index of chosen action
         return a
         
-    def update(self, state, action, reward):
-        target = self.gamma * max(self.Q[self.select_action(state)])                        # find the next state after action is taken
-        self.n[action] += 1
-        self.Q[state][action] += (self.alpha *  (reward + target + self.Q[state][action]))  # update the means according to Q-learning rule
+    def update(self, current_state, new_state, action, reward):
+        target = reward + (self.gamma * self.Q[new_state][self.select_action(new_state)])                       # find the next state after action is taken
+        # self.n[action] += 1
+        self.Q[current_state][action] += (self.alpha *  (target - self.Q[current_state][action]))  # update the means according to Q-learning rule
         pass
 
 class SARSAAgent(object):
@@ -65,7 +65,7 @@ class SARSAAgent(object):
     def update(self, state, action, reward):
         target = self.gamma * self.e_greedy(self.Q[self.select_action(state)])              # find the next state after action is taken
         self.n[action] += 1
-        self.Q[state][action] += (self.alpha *  (reward + target + self.Q[state][action]))  # update the means according to Q-learning rule
+        self.Q[state][action] += (self.alpha *  (reward + target - self.Q[state][action]))  # update the means according to Q-learning rule
         pass
 
 class ExpectedSARSAAgent(object):
