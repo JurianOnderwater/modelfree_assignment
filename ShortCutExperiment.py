@@ -53,13 +53,15 @@ def experiment(n_episodes, n_repetitions, experiment_type, alpha):
     '''
     averaged_curve = [0 for _ in range(n_episodes)]
     env = ShortcutEnvironment()                                             # initialise the environment
-    agent_dict = {1:        QLearningAgent(n_actions=env.action_size(), n_states=env.state_size(), epsilon=epsilon, alpha=alpha, gamma=gamma),
-                  2:            SARSAAgent(n_actions=env.action_size(), n_states=env.state_size(), epsilon=epsilon, alpha=alpha, gamma=gamma), 
-                  3:    ExpectedSARSAAgent()}
-    agent = agent_dict[experiment_type]
+    
+    
     print('Starting with alpha = {alpha}'.format(alpha=alpha))
 
     for i in tqdm(range(n_repetitions), colour='green'):
+        agent_dict = {1:        QLearningAgent(n_actions=env.action_size(), n_states=env.state_size(), epsilon=epsilon, alpha=alpha, gamma=gamma),
+                      2:            SARSAAgent(n_actions=env.action_size(), n_states=env.state_size(), epsilon=epsilon, alpha=alpha, gamma=gamma), 
+                      3:    ExpectedSARSAAgent(n_actions=env.action_size(), n_states=env.state_size(), epsilon=epsilon)}
+        agent = agent_dict[experiment_type]
         for j in range(n_episodes):
             env.reset()                                                         # start with a clean environment
             timestep = 0                                                        # counter for average reward
