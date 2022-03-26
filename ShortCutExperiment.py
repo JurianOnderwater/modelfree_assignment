@@ -75,7 +75,7 @@ def experiment(n_episodes, n_repetitions, experiment_type, alpha):
                 timestep += 1 
             make_averaged_curve(averaged_curve, c_reward, i, j)                 # update averaged_curve with cumulative reward
     # print_greedy_actions(agent.Q)
-    max_reward = averaged_curve[-1]
+    max_reward = max(averaged_curve)
     return [averaged_curve, max_reward]
 
     # if experiment_type == 2:
