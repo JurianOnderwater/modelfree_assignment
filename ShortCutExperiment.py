@@ -1,9 +1,9 @@
 from multiprocessing.sharedctypes import Value
 import numpy as np
 from tqdm import tqdm
-from ShortCutEnvironment import ShortcutEnvironment
+from ShortCutEnvironment import ShortcutEnvironment, WindyShortcutEnvironment
 from ShortCutAgents import QLearningAgent, SARSAAgent, ExpectedSARSAAgent
-from Helper import LearningCurvePlot, ComparisonPlot, smooth, cumulative_reward, make_averaged_curve
+from Helper import LearningCurvePlot, ComparisonPlot, smooth, cumulative_reward, make_averaged_curve, print_greedy_actions
 from tqdm import tqdm
 
 
@@ -74,7 +74,7 @@ def experiment(n_episodes, n_repetitions, experiment_type, alpha):
                 c_reward += cumulative_reward(sample_reward, gamma, timestep)
                 timestep += 1 
             make_averaged_curve(averaged_curve, c_reward, i, j)                 # update averaged_curve with cumulative reward
-            
+    # print_greedy_actions(agent.Q)
     return averaged_curve
 
     # if experiment_type == 2:
@@ -112,7 +112,7 @@ pass
 
 if __name__ == '__main__':
     # experiment settings
-    n_repetitions       = 10
+    n_repetitions       = 100
     n_episodes          = 1000
     # n_timesteps         = 1000
     smoothing_window    = 31

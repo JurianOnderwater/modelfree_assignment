@@ -59,6 +59,19 @@ class ComparisonPlot:
         self.ax.legend()
         self.fig.savefig(name,dpi=300)
 
+def print_greedy_actions(Q):
+     greedy_actions = np.argmax(Q, 1).reshape((12,12))
+     print_string = np.zeros((12, 12), dtype=str)
+     print_string[greedy_actions==0] = '^'
+     print_string[greedy_actions==1] = 'v'
+     print_string[greedy_actions==2] = '<'
+     print_string[greedy_actions==3] = '>'
+     print_string[np.max(Q, 1).reshape((12, 12))==0] = ' '
+     line_breaks = np.zeros((12,1), dtype=str)
+     line_breaks[:] = '\n'
+     print_string = np.hstack((print_string, line_breaks))
+     print(print_string.tobytes().decode('utf-8'))
+
 def cumulative_reward(reward: float, gamma: float, timestep: int)->float:
     '''
     Returns the cumulative reward for a gamma and timestep.
