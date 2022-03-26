@@ -21,22 +21,22 @@ def vary_alpha(func):
         if (experiment_type != 4):
             plot = LearningCurvePlot(title='{title} Experiment'.format(title=experiment_name_dict[experiment_type]))
             for alpha in exploration_parameter_values:
-                learning_curve = func(n_episodes, n_repetitions, experiment_type, alpha)
+                learning_curve = func(n_episodes, n_repetitions, experiment_type, alpha)[0]
                 smoothed_learning_curve = smooth(learning_curve, smoothing_window)
                 plot.add_curve(smoothed_learning_curve, label = 'Alpha = {parameter_value}'.format(parameter_value=alpha))
             plot.save(name = 'varying_alpha')
-        # else:
-        #     comparison_plot = ComparisonPlot(title='Policy Comparison')
-        #     optimal_plot = LearningCurvePlot(title='Optimal Parameters')
-        #     for i in range(3):
-        #         rewards = [func(n_actions, n_timesteps, n_repetitions, smoothing_window, value, i+1)[1] for value in comparison_list[i]]
-        #         optimal_index = rewards.index(max(rewards))
-        #         optimal = comparison_list[i][optimal_index]
-        #         optimal_curve = func(n_actions, n_timesteps, n_repetitions, smoothing_window, value = optimal, experiment_type = i+1)[0]
-        #         optimal_plot.add_curve(optimal_curve, label = '{exploration_parameter} = {parameter_value}'.format(exploration_parameter=experiment_parameter_dict[i+1],parameter_value=optimal))
-        #         comparison_plot.add_curve(comparison_list[i], rewards, label='{exploration_parameter}'.format(exploration_parameter=experiment_name_dict[i+1]))
-        #     comparison_plot.save(name='policy_comparison')
-        #     optimal_plot.save(name='optimal_plot')
+        else:
+            comparison_plot = ComparisonPlot(title='Policy Comparison')
+            # optimal_plot = LearningCurvePlot(title='Optimal Parameters')
+            for i in range(3):
+                rewards = [func(n_episodes, n_repetitions, i+1, value)[1] for value in alpha_list]
+                # optimal_index = rewards.index(max(rewards))
+                # optimal = comparison_list[i][optimal_index]
+                # optimal_curve = func(n_actions, n_timesteps, n_repetitions, smoothing_window, value = optimal, experiment_type = i+1)[0]
+                # optimal_plot.add_curve(optimal_curve, label = '{exploration_parameter} = {parameter_value}'.format(exploration_parameter=experiment_parameter_dict[i+1],parameter_value=optimal))
+                comparison_plot.add_curve(alpha_list, rewards, label='{exploration_parameter}'.format(exploration_parameter=experiment_name_dict[i+1]))
+            comparison_plot.save(name='comparison_plot')
+            # optimal_plot.save(name='optimal_plot')
     return wrapper
 
 @vary_alpha
@@ -53,7 +53,7 @@ def experiment(n_episodes, n_repetitions, experiment_type, alpha):
     '''
     averaged_curve = [0 for _ in range(n_episodes)]
     env = ShortcutEnvironment()                                             # initialise the environment
-    
+    max_reward = 0
     
     print('Starting with alpha = {alpha}'.format(alpha=alpha))
 
@@ -75,7 +75,8 @@ def experiment(n_episodes, n_repetitions, experiment_type, alpha):
                 timestep += 1 
             make_averaged_curve(averaged_curve, c_reward, i, j)                 # update averaged_curve with cumulative reward
     # print_greedy_actions(agent.Q)
-    return averaged_curve
+    max_reward = averaged_curve[-1]
+    return [averaged_curve, max_reward]
 
     # if experiment_type == 2:
     #     print('Starting with alpha = {alpha}'.format(alpha=alpha))
@@ -119,23 +120,23 @@ if __name__ == '__main__':
     epsilon             = 0.1
     gamma               = 1 #no idea what this needs to be by default
 
-    alpha_list = [0.1, 0.5, 1.0, 2.0]        # Values that are used in the comparison experiment
+    alpha_list = [0.01, 0.1, 0.5, 0.9]        # Values that are used in the comparison experiment
     
     # comparison_list = [epsilon_list, initial_mean_list, c_list]
     # experiment_parameter_dict   = {1:'epsilon', 2:'initial_mean', 3:'c', 4:'Comparison'}
     experiment_name_dict        = {1:'Q-learning', 2:'SARSA', 3:'Expected SARSA'}
-    experiment_type = int(input('Choose one of Q-learning (1), SARSA (2) or Expected SARSA (3): '))
+    experiment_type = int(input('Choose one of Q-learning (1), SARSA (2), Expected SARSA (3) or Comparison (4): '))
     # parameter_name = experiment_parameter_dict[experiment_type]
 
-    # if (experiment_type < 4):
-    print("Add Alphas you want to try out in the {policy}-policy and press 'enter'. When you are done with adding values, press 'enter' again to start the algorithm".format(policy=experiment_name_dict[experiment_type]))
-    try:
-        exploration_parameter_values = ()
-        while True:
-            exploration_parameter_values += (float(input('Enter an Alpha and press enter: ')),)
-    except: # if the input is not-integer, just print the list
-        print(exploration_parameter_values)
-    # else:
-    #     print('The program will loop over {amount_of_values} values now'.format(amount_of_values=len(epsilon_list)+len(initial_mean_list)+len(c_list)))
+    if (experiment_type < 4):
+        print("Add Alphas you want to try out in the {policy}-policy and press 'enter'. When you are done with adding values, press 'enter' again to start the algorithm".format(policy=experiment_name_dict[experiment_type]))
+        try:
+            exploration_parameter_values = ()
+            while True:
+                exploration_parameter_values += (float(input('Enter an Alpha and press enter: ')),)
+        except: # if the input is not-integer, just print the list
+            print(exploration_parameter_values)
+    else:
+        print('The program will loop over {amount_of_values} values now'.format(amount_of_values=len(alpha_list)))
     
     experiment(n_repetitions=n_repetitions, n_episodes=n_episodes, experiment_type=experiment_type, alpha=0.1)
