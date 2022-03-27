@@ -140,6 +140,19 @@ class ShortcutEnvironment(Environment):
                 self.y = self.starty
                 return -100
         return -1
+
+    def backstep(self, action):
+        if not action in self.possible_actions():
+            raise ValueError(f'Action ({action}) not in set of possible actions.')
+        
+        if action == 0:
+            self.y += 1
+        elif action == 1:
+            self.y -= 1
+        elif action == 2:
+            self.x += 1
+        elif action == 3:
+            self.x -= 1
     
     
     def render(self):
