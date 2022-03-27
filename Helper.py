@@ -39,8 +39,8 @@ class ComparisonPlot:
 
     def __init__(self,title=None):
         self.fig,self.ax = plt.subplots()
-        self.ax.set_xlabel('Parameter (exploration)')
-        self.ax.set_ylabel('Average reward') 
+        self.ax.set_xlabel('Alpha')
+        self.ax.set_ylabel('Cumulative reward in last episode') 
         self.ax.set_xscale('log')
         if title is not None:
             self.ax.set_title(title)
