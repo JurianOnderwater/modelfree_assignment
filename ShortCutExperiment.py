@@ -1,4 +1,5 @@
 from multiprocessing.sharedctypes import Value
+from turtle import delay
 import numpy as np
 from tqdm import tqdm
 from ShortCutEnvironment import ShortcutEnvironment, WindyShortcutEnvironment
@@ -28,13 +29,14 @@ def vary_alpha(func):
         else:
             comparison_plot = ComparisonPlot(title='Policy Comparison')
             # optimal_plot = LearningCurvePlot(title='Optimal Parameters')
-            for i in range(3):
-                rewards = [func(n_episodes, n_repetitions, i+1, value)[1] for value in alpha_list]
+            for experiment in range(3):
+                print('Starting with {experiment} experiment'.format(experiment=experiment_name_dict[experiment+1]))
+                rewards = [func(n_episodes, n_repetitions, experiment+1, alpha)[1] for alpha in alpha_list]
                 # optimal_index = rewards.index(max(rewards))
                 # optimal = comparison_list[i][optimal_index]
                 # optimal_curve = func(n_actions, n_timesteps, n_repetitions, smoothing_window, value = optimal, experiment_type = i+1)[0]
                 # optimal_plot.add_curve(optimal_curve, label = '{exploration_parameter} = {parameter_value}'.format(exploration_parameter=experiment_parameter_dict[i+1],parameter_value=optimal))
-                comparison_plot.add_curve(alpha_list, rewards, label='{exploration_parameter}'.format(exploration_parameter=experiment_name_dict[i+1]))
+                comparison_plot.add_curve(alpha_list, rewards, label='{exploration_parameter}'.format(exploration_parameter=experiment_name_dict[experiment+1]))
             comparison_plot.save(name='comparison_plot')
             # optimal_plot.save(name='optimal_plot')
     return wrapper
@@ -43,24 +45,24 @@ def vary_alpha(func):
 def experiment(n_episodes, n_repetitions, experiment_type, alpha):
     '''
     Execute a machinelearning experiment
-
     Parameters
     ----------
     n_episodes: amount of episodes used for training
     n_repetitions: amount of training repetitions that is averaged over
     experiment_type: agent that is used
     alpha: learning rate that the agent uses
-    '''
+     '''
     averaged_curve = [0 for _ in range(n_episodes)]
     env = ShortcutEnvironment()                                             # initialise the environment
     max_reward = 0
-    
+    action_size = env.action_size()
+    # step_dict = {0:[0,-1], 1:[0,1], 2:[-1,0], 3:[1,0]}
     print('Starting with alpha = {alpha}'.format(alpha=alpha))
 
     for i in tqdm(range(n_repetitions), colour='green'):
         agent_dict = {1:        QLearningAgent(n_actions=env.action_size(), n_states=env.state_size(), epsilon=epsilon, alpha=alpha, gamma=gamma),
                       2:            SARSAAgent(n_actions=env.action_size(), n_states=env.state_size(), epsilon=epsilon, alpha=alpha, gamma=gamma), 
-                      3:    ExpectedSARSAAgent(n_actions=env.action_size(), n_states=env.state_size(), epsilon=epsilon)}
+                      3:    ExpectedSARSAAgent(n_actions=env.action_size(), n_states=env.state_size(), epsilon=epsilon, alpha=alpha, gamma=gamma)}
         agent = agent_dict[experiment_type]
         for j in range(n_episodes):
             env.reset()                                                         # start with a clean environment
@@ -69,51 +71,25 @@ def experiment(n_episodes, n_repetitions, experiment_type, alpha):
             while not env.done():                                               # continue till you reach terminal state                                           
                 sample_action = agent.select_action(env.state())                # choose an action to take in the current state
                 current_state = env.state()                                     # make a copy of the current state to use in the update function
-                sample_reward = env.step(sample_action)
+                sample_reward = env.step(sample_action)                         # get the reward that the taking of the sampled action gives
                 agent.update(current_state=current_state, new_state=env.state(), action=sample_action, reward=sample_reward) # update the means that the agent uses to choose an action
                 c_reward += cumulative_reward(sample_reward, gamma, timestep)
                 timestep += 1 
+                if timestep > 3000:
+                    break
+            # env.render()
+            # print(timestep)
             make_averaged_curve(averaged_curve, c_reward, i, j)                 # update averaged_curve with cumulative reward
     # print_greedy_actions(agent.Q)
-    max_reward = max(averaged_curve)
+    max_reward = averaged_curve[-1]
     return [averaged_curve, max_reward]
 
-    # if experiment_type == 2:
-    #     print('Starting with alpha = {alpha}'.format(alpha=alpha))
-    #     for i in tqdm(range(n_repetitions), colour='green'):
-    #         env = ShortcutEnvironment()                                             # initialise the environment  
-    #         sarsa = SARSAAgent(n_actions=env.action_size(), n_states=env.state_size(), epsilon=epsilon, alpha=alpha, gamma=gamma)                        # initialise the policy with alpha                                           # initialise the environment
-    #         for j in range(n_episodes):
-    #             env.reset()                                                         # start with a clean environment
-    #             timestep = 0                                                        # counter for average reward
-    #             c_reward = 0                                                        # cumulative reward
-    #             while not env.done():                                               # continue till you reach terminal state                                            
-    #                 sample_action = sarsa.select_action(env.state())
-    #                 current_state = env.state()
-    #                 sample_reward = env.step(sample_action)                         # the step function has as a sideeffect that state is altered
-    #                 sarsa.update(current_state=current_state, new_state=env.state(), action=sample_action, reward=sample_reward)
-    #                 c_reward += cumulative_reward(sample_reward, gamma, timestep)
-    #                 timestep += 1 
-    #             make_averaged_curve(averaged_curve, c_reward, i, j)
-    #     return averaged_curve
-
-    # if experiment_type == 3:
-    #     for _ in range(n_repetitions):
-    #         esarsa = ExpectedSARSAAgent()                                            # initialise the policy
-    #         env = ShortcutEnvironment()                                             # initialise the environment
-    #         for _ in range(n_episodes):
-    #             env.reset()                                                 # start with a clean environment
-    #             while not env.done():                                       # continue till you reach terminal state
-    #                 sample_action = esarsa.select_action(env.state())
-    #                 sample_reward = env.step(sample_action)
-    #                 esarsa.update(state=env.state(), action=sample_action, reward=sample_reward)
-    #                 # env.step() # I'm think this is not necessary because .step has the updating of the state as a side effect
 
 pass
 
 if __name__ == '__main__':
     # experiment settings
-    n_repetitions       = 100
+    n_repetitions       = 10
     n_episodes          = 1000
     # n_timesteps         = 1000
     smoothing_window    = 31
