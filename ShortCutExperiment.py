@@ -24,8 +24,8 @@ def vary_alpha(func):
             for alpha in exploration_parameter_values:
                 learning_curve = func(n_episodes, n_repetitions, experiment_type, alpha)[0]
                 smoothed_learning_curve = smooth(learning_curve, smoothing_window)
-                plot.add_curve(smoothed_learning_curve, label = 'Alpha = {parameter_value}'.format(parameter_value=alpha))
-            plot.save(name = 'varying_alpha')
+                plot.add_curve(smoothed_learning_curve, label = 'α = {parameter_value}'.format(parameter_value=alpha))
+            plot.save(name = 'varying_α')
         else:
             comparison_plot = ComparisonPlot(title='Policy Comparison')
             # optimal_plot = LearningCurvePlot(title='Optimal Parameters')
@@ -53,11 +53,9 @@ def experiment(n_episodes, n_repetitions, experiment_type, alpha):
     alpha: learning rate that the agent uses
      '''
     averaged_curve = [0 for _ in range(n_episodes)]
-    env = ShortcutEnvironment()                                             # initialise the environment
+    env = ShortcutEnvironment()                                                 # initialise the environment
     max_reward = 0
-    action_size = env.action_size()
-    # step_dict = {0:[0,-1], 1:[0,1], 2:[-1,0], 3:[1,0]}
-    print('Starting with alpha = {alpha}'.format(alpha=alpha))
+    print('Starting with α = {alpha}'.format(alpha=alpha))
 
     for i in tqdm(range(n_repetitions), colour='green'):
         agent_dict = {1:        QLearningAgent(n_actions=env.action_size(), n_states=env.state_size(), epsilon=epsilon, alpha=alpha, gamma=gamma),
@@ -77,8 +75,6 @@ def experiment(n_episodes, n_repetitions, experiment_type, alpha):
                 timestep += 1 
                 if timestep > 3000:
                     break
-            # env.render()
-            # print(timestep)
             make_averaged_curve(averaged_curve, c_reward, i, j)                 # update averaged_curve with cumulative reward
     # print_greedy_actions(agent.Q)
     max_reward = averaged_curve[-1]
@@ -91,28 +87,24 @@ if __name__ == '__main__':
     # experiment settings
     n_repetitions       = 10
     n_episodes          = 1000
-    # n_timesteps         = 1000
     smoothing_window    = 31
     epsilon             = 0.1
-    gamma               = 1 #no idea what this needs to be by default
+    gamma               = 1 
 
     alpha_list = [0.01, 0.1, 0.5, 0.9]        # Values that are used in the comparison experiment
     
-    # comparison_list = [epsilon_list, initial_mean_list, c_list]
-    # experiment_parameter_dict   = {1:'epsilon', 2:'initial_mean', 3:'c', 4:'Comparison'}
     experiment_name_dict        = {1:'Q-learning', 2:'SARSA', 3:'Expected SARSA'}
     experiment_type = int(input('Choose one of Q-learning (1), SARSA (2), Expected SARSA (3) or Comparison (4): '))
-    # parameter_name = experiment_parameter_dict[experiment_type]
 
     if (experiment_type < 4):
-        print("Add Alphas you want to try out in the {policy}-policy and press 'enter'. When you are done with adding values, press 'enter' again to start the algorithm".format(policy=experiment_name_dict[experiment_type]))
+        print("Add alphas you want to try out in the {policy}-policy and press 'enter'. When you are done with adding values, press 'enter' again to start the algorithm".format(policy=experiment_name_dict[experiment_type]))
         try:
             exploration_parameter_values = ()
             while True:
-                exploration_parameter_values += (float(input('Enter an Alpha and press enter: ')),)
+                exploration_parameter_values += (float(input('Enter an α and press enter: ')),)
         except: # if the input is not-integer, just print the list
             print(exploration_parameter_values)
     else:
-        print('The program will loop over {amount_of_values} values now'.format(amount_of_values=len(alpha_list)))
+        print('The program will loop over {amount_of_values} values now for each of the agents'.format(amount_of_values=len(alpha_list)))
     
     experiment(n_repetitions=n_repetitions, n_episodes=n_episodes, experiment_type=experiment_type, alpha=0.1)
