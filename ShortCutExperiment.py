@@ -22,23 +22,23 @@ def vary_alpha(func):
         if (experiment_type != 4):
             plot = LearningCurvePlot(title='{title} Experiment'.format(title=experiment_name_dict[experiment_type]))
             for alpha in exploration_parameter_values:
-                learning_curve = func(n_episodes, n_repetitions, experiment_type, alpha)[0]
+                learning_curve          = func(n_episodes, n_repetitions, experiment_type, alpha)[0]
                 smoothed_learning_curve = smooth(learning_curve, smoothing_window)
                 plot.add_curve(smoothed_learning_curve, label = 'α = {parameter_value}'.format(parameter_value=alpha))
             plot.save(name = 'varying_α')
         else:
             comparison_plot = ComparisonPlot(title='Policy Comparison')
-            # optimal_plot = LearningCurvePlot(title='Optimal Parameters')
+            optimal_plot = LearningCurvePlot(title='Optimal Parameters')
             for experiment in range(3):
                 print('Starting with {experiment} experiment'.format(experiment=experiment_name_dict[experiment+1]))
                 rewards = [func(n_episodes, n_repetitions, experiment+1, alpha)[1] for alpha in alpha_list]
-                # optimal_index = rewards.index(max(rewards))
-                # optimal = comparison_list[i][optimal_index]
-                # optimal_curve = func(n_actions, n_timesteps, n_repetitions, smoothing_window, value = optimal, experiment_type = i+1)[0]
-                # optimal_plot.add_curve(optimal_curve, label = '{exploration_parameter} = {parameter_value}'.format(exploration_parameter=experiment_parameter_dict[i+1],parameter_value=optimal))
+                optimal_index = rewards.index(max(rewards))
+                optimal = alpha_list[optimal_index]
+                optimal_curve = func(n_episodes, n_repetitions, experiment+1, optimal)[0]
+                optimal_plot.add_curve(optimal_curve, label = '{exploration_parameter} = {parameter_value}'.format(exploration_parameter=experiment_name_dict[experiment+1],parameter_value=optimal))
                 comparison_plot.add_curve(alpha_list, rewards, label='{exploration_parameter}'.format(exploration_parameter=experiment_name_dict[experiment+1]))
             comparison_plot.save(name='comparison_plot')
-            # optimal_plot.save(name='optimal_plot')
+            optimal_plot.save(name='optimal_plot')
     return wrapper
 
 @vary_alpha
@@ -52,9 +52,10 @@ def experiment(n_episodes, n_repetitions, experiment_type, alpha):
     experiment_type: agent that is used
     alpha: learning rate that the agent uses
      '''
-    averaged_curve = [0 for _ in range(n_episodes)]
-    env = ShortcutEnvironment()                                                 # initialise the environment
+    
     max_reward = 0
+    env = ShortcutEnvironment()                                                 # initialise the environment
+    averaged_curve = [0 for _ in range(n_episodes)]
     print('Starting with α = {alpha}'.format(alpha=alpha))
 
     for i in tqdm(range(n_repetitions), colour='green'):
@@ -73,7 +74,7 @@ def experiment(n_episodes, n_repetitions, experiment_type, alpha):
                 agent.update(current_state=current_state, new_state=env.state(), action=sample_action, reward=sample_reward) # update the means that the agent uses to choose an action
                 c_reward += cumulative_reward(sample_reward, gamma, timestep)
                 timestep += 1 
-                if timestep > 3000:
+                if timestep > 3000:                                             # protection against walking too long without final state
                     break
             make_averaged_curve(averaged_curve, c_reward, i, j)                 # update averaged_curve with cumulative reward
     # print_greedy_actions(agent.Q)
@@ -85,7 +86,7 @@ pass
 
 if __name__ == '__main__':
     # experiment settings
-    n_repetitions       = 10
+    n_repetitions       = 100
     n_episodes          = 1000
     smoothing_window    = 31
     epsilon             = 0.1
